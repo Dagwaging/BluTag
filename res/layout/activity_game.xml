@@ -3,7 +3,7 @@
     android:id="@android:id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.rosehulman.blutag.activities.MainActivity"
-    tools:listitem="@layout/item_game" >
+    tools:context="edu.rosehulman.blutag.activities.GameActivity"
+    tools:listitem="@layout/item_player" >
 
 </ListView>
