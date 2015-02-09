@@ -11,6 +11,8 @@ public class Game implements Comparable<Game>, Parcelable {
 	
 	public String name;
 	
+	public int playerCount;
+	
 	public List<Player> players;
 
 	public List<Tag> tags;
