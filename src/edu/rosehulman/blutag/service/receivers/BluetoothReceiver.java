@@ -1,4 +1,4 @@
-package edu.rosehulman.blutag.service;
+package edu.rosehulman.blutag.service.receivers;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
