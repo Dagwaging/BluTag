@@ -1,4 +1,4 @@
-package edu.rosehulman.blutag.data;
+package edu.rosehulman.blutag.service.data;
 
 import java.util.Date;
 

@@ -17,7 +17,7 @@ import android.widget.ListView;
 import edu.rosehulman.blutag.R;
 import edu.rosehulman.blutag.adapters.GameHolder;
 import edu.rosehulman.blutag.adapters.HolderAdapter;
-import edu.rosehulman.blutag.data.Game;
+import edu.rosehulman.blutag.service.data.Game;
 
 public class MainActivity extends Activity implements OnClickListener, OnItemClickListener {
 	private HolderAdapter<Game> games;

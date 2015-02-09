@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import edu.rosehulman.blutag.R;
-import edu.rosehulman.blutag.data.Player;
+import edu.rosehulman.blutag.service.data.Player;
 
 public class PlayerHolder extends HolderAdapter.Holder<Player> {
 	private TextView name;

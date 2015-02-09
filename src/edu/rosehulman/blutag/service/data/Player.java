@@ -1,4 +1,4 @@
-package edu.rosehulman.blutag.data;
+package edu.rosehulman.blutag.service.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
