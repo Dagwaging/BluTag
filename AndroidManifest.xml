@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="edu.rosehulman.blutag.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -44,7 +45,7 @@
         </activity>
 
         <receiver
-            android:name=".receivers.RegistrationReceiver"
+            android:name=".service.receivers.RegistrationReceiver"
             android:enabled="true"
             android:permission="com.google.android.c2dm.permission.RECEIVE" >
             <intent-filter>
@@ -59,7 +60,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".receivers.PushReceiver"
+            android:name=".service.receivers.PushReceiver"
             android:enabled="true"
             android:permission="com.google.android.c2dm.permission.RECEIVE" >
             <intent-filter>
@@ -69,7 +70,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".receivers.RegistrationService" >
+        <service android:name=".service.receivers.RegistrationService" >
         </service>
     </application>
 

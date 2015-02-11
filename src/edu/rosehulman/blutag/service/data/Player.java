@@ -6,13 +6,18 @@ import android.os.Parcelable;
 public class Player implements Comparable<Player>, Parcelable {
 	public String address;
 	
-	public String firstName;
+	public String pushId;
 	
-	public String lastName;
+	public String givenName;
+	
+	public String familyName;
 	
 	public String image;
 	
 	public boolean left;
+	
+	public Player() {
+	}
 	
 	@Override
 	public int hashCode() {
@@ -21,17 +26,18 @@ public class Player implements Comparable<Player>, Parcelable {
 
 	@Override
 	public int compareTo(Player another) {
-		return firstName.compareTo(another.firstName);
+		return givenName.compareTo(another.givenName);
 	}
 
 	public String getName() {
-		return firstName;
+		return givenName;
 	}
 
     protected Player(Parcel in) {
         address = in.readString();
-        firstName = in.readString();
-        lastName = in.readString();
+        pushId = in.readString();
+        givenName = in.readString();
+        familyName = in.readString();
         image = in.readString();
         left = in.readByte() != 0x00;
     }
@@ -44,8 +50,9 @@ public class Player implements Comparable<Player>, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(address);
-        dest.writeString(firstName);
-        dest.writeString(lastName);
+        dest.writeString(pushId);
+        dest.writeString(givenName);
+        dest.writeString(familyName);
         dest.writeString(image);
         dest.writeByte((byte) (left ? 0x01 : 0x00));
     }

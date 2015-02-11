@@ -31,11 +31,11 @@ public class RegistrationService extends IntentService {
 	private static final String TAG = RegistrationService.class.getName();
 
 	// TODO: Add from Google App Engine
-	private static final String GCM_SENDERID = "258287220278";
+	private static final String GCM_SENDERID = "812914528803";
 
 	private static final String PREF_VERSION = "version";
 	
-	private static final String PREF_REGID = "regID";
+	public static final String PREF_REGID = "regID";
 
 	public static final String ACTION_REGISTRATION = "com.google.android.c2dm.intent.REGISTRATION";
 

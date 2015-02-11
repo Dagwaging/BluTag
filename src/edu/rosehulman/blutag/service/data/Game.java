@@ -7,7 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Game implements Comparable<Game>, Parcelable {
-	private String _id;
+	public String _id;
 	
 	public String name;
 	
@@ -16,6 +16,9 @@ public class Game implements Comparable<Game>, Parcelable {
 	public List<Player> players;
 
 	public List<Tag> tags;
+	
+	public Game() {
+	}
 	
 	@Override
 	public int hashCode() {
