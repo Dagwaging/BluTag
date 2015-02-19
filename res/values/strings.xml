@@ -8,7 +8,13 @@
     <string name="dialog_game_create_title">Create game</string>
     <string name="dialog_game_create_button">Create</string>
     <string name="menu_game_join">Join game</string>
+    <string name="menu_game_start">Start game</string>
     <string name="dialog_game_leave_button">Leave</string>
     <string name="dialog_game_leave_message">Are you sure you want to leave the game?</string>
+    <string name="toast_game_ended">That game has ended</string>
+    <string name="notification_tag">%s is it!</string>
+    <string name="notification_wait">Waiting for game to start&#8230;</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="title_activity_status">StatusActivity</string>
 
 </resources>

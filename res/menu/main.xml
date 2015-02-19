@@ -3,6 +3,12 @@
     tools:context="edu.rosehulman.blutag.MainActivity" >
 
     <item
+        android:id="@+id/menu_refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:showAsAction="always"
+        android:title="@string/menu_refresh">
+    </item>
+    <item
         android:id="@+id/menu_game_create"
         android:icon="@drawable/ic_action_new"
         android:showAsAction="always"

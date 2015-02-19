@@ -7,5 +7,13 @@
         android:showAsAction="always"
         android:title="@string/menu_game_join">
     </item>
+    <item
+        android:id="@+id/menu_game_start"
+        android:icon="@drawable/ic_action_play"
+        android:showAsAction="always"
+        android:title="@string/menu_game_start"
+        android:visible="false">
+    </item>
+
 
 </menu>
