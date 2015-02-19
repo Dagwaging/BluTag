@@ -29,6 +29,15 @@ public class Player implements Comparable<Player>, Parcelable {
 		return givenName.compareTo(another.givenName);
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		if(other == null || !(other instanceof Player)) {
+			return false;
+		}
+		
+		return other.hashCode() == hashCode();
+	}
+
 	public String getName() {
 		return givenName;
 	}

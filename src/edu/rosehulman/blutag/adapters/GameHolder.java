@@ -20,9 +20,9 @@ public class GameHolder extends HolderAdapter.Holder<Game> {
 	@Override
 	public void render(Game item) {
 		name.setText(item.name);
-		players.setText(item.players.size());
-		status.setImageResource(item.tags.isEmpty() ? R.drawable.ic_action_stop
-				: R.drawable.ic_action_play);
+		players.setText(Integer.toString(item.playerCount));
+		status.setImageResource(item.tags.isEmpty() ? R.drawable.ic_stop
+				: R.drawable.ic_play);
 	}
 	
 	public static class Factory implements HolderAdapter.Factory<Game> {

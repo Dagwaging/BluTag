@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 public class HolderAdapter<T> extends ArrayAdapter<T> {
-	private LayoutInflater layoutInflater;
 	private Factory<T> holderFactory;
 	private int resource;
 
@@ -60,7 +59,7 @@ public class HolderAdapter<T> extends ArrayAdapter<T> {
 		Holder<T> holder;
 
 		if (convertView == null) {
-			convertView = layoutInflater.inflate(resource, parent, false);
+			convertView = LayoutInflater.from(getContext()).inflate(resource, parent, false);
 
 			holder = holderFactory.create(convertView);
 

@@ -15,7 +15,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="edu.rosehulman.blutag.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -29,7 +30,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="edu.rosehulman.blutag.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
@@ -41,6 +42,10 @@
         </activity>
         <activity
             android:name=".activities.GameActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="edu.rosehulman.blutag.activities.StatusActivity"
             android:screenOrientation="portrait" >
         </activity>
 
@@ -71,6 +76,8 @@
         </receiver>
 
         <service android:name=".service.receivers.RegistrationService" >
+        </service>
+        <service android:name=".service.BluTagService" >
         </service>
     </application>
 

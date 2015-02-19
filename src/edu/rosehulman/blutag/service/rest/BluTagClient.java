@@ -6,13 +6,18 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.Uri.Builder;
+import android.util.LruCache;
 
 import com.android.volley.Request.Method;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageCache;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,17 +28,20 @@ import edu.rosehulman.blutag.service.data.Player;
 import edu.rosehulman.blutag.service.data.Tag;
 
 public class BluTagClient {
-	private static final String API_URL = "http://137.112.137.151";
+	private static final String API_URL = "http://blutag-dagwaging.rhcloud.com/";
 	private static final String GAMES_URL = "games";
 	private static final String GAME_PLAYERS_PARAMETER = "players";
 	private static final String TAGS_URL = "tags";
 	private static final String PLAYERS_URL = "players";
+	private static final String START_URL = "start";
 
 	private Uri apiUrl;
 
 	private Gson gson;
 
 	private RequestQueue requestQueue;
+	
+	private ImageLoader imageLoader;
 
 	private static BluTagClient instance;
 
@@ -42,8 +50,30 @@ public class BluTagClient {
 				new DateTypeAdapter()).create();
 
 		requestQueue = Volley.newRequestQueue(context.getApplicationContext());
+		
+		imageLoader = new ImageLoader(requestQueue, new ImageCache() {
+			private final LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>(16);
+			
+			@Override
+			public void putBitmap(String url, Bitmap bitmap) {
+				cache.put(url, bitmap);
+			}
+			
+			@Override
+			public Bitmap getBitmap(String url) {
+				return cache.get(url);
+			}
+		});
 
 		apiUrl = Uri.parse(API_URL);
+	}
+	
+	public void getImage(Listener<Bitmap> listener, ErrorListener errorListener, Object tag, String url, int maxWidth, int maxHeight) {
+		ImageRequest imageRequest = new ImageRequest(url, listener, maxWidth, maxHeight, null, errorListener);
+		
+		imageRequest.setTag(tag);
+		
+		requestQueue.add(imageRequest);
 	}
 
 	public void getGames(Listener<List<Game>> listener,
@@ -161,9 +191,30 @@ public class BluTagClient {
 
 		requestQueue.add(leaveGameRequest);
 	}
+	
+	public void startGame(Listener<Void> listener, ErrorListener errorListener, Object tag, String gameId) {
+		Uri url = apiUrl.buildUpon().appendPath(GAMES_URL)
+				.appendEncodedPath(gameId).appendPath(START_URL).build();
+	
+		GsonRequest<Void> startGameRequest = new GsonRequest<Void>(gson,
+				Method.POST, url.toString(), Void.class, null, listener,
+				errorListener);
 
+		startGameRequest.setTag(tag);
+
+		requestQueue.add(startGameRequest);
+	}
+	
 	public void cancelAll(Object tag) {
 		requestQueue.cancelAll(tag);
+	}
+	
+	public ImageLoader getImageLoader() {
+		return imageLoader;
+	}
+	
+	public Gson getGson() {
+		return gson;
 	}
 
 	public static synchronized BluTagClient getInstance(Context context) {

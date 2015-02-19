@@ -21,13 +21,59 @@ public class Game implements Comparable<Game>, Parcelable {
 	}
 	
 	@Override
+	public String toString() {
+		return _id;
+	}
+
+	@Override
 	public int hashCode() {
 		return _id.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if(other == null || !(other instanceof Game)) {
+			return false;
+		}
+		
+		return other.hashCode() == hashCode();
 	}
 
 	@Override
 	public int compareTo(Game another) {
 		return players.size() - another.players.size();
+	}
+	
+	public Player getPlayer(String address) {
+		for(Player player : players) {
+			if(player.address.equals(address)) {
+				return player;
+			}
+		}
+		
+		return null;
+	}
+	
+	public List<Player> getActivePlayers() {
+		ArrayList<Player> activePlayers = new ArrayList<Player>();
+		
+		for(Player player : players) {
+			if(!player.left) {
+				activePlayers.add(player);
+			}
+		}
+		
+		return activePlayers;
+	}
+	
+	public Player getIt() {
+		if(tags.size() == 0) {
+			return null;
+		}
+
+		Tag it = tags.get(tags.size() - 1);
+		
+		return getPlayer(it.player);
 	}
 
     protected Game(Parcel in) {
