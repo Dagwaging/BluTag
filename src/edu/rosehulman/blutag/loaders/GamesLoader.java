@@ -42,6 +42,8 @@ public class GamesLoader extends Loader<List<Game>> implements
 	protected void onStartLoading() {
 		BluTagService.registerGamesListener(getContext(), this, this);
 
+		Log.d(TAG, "Load started");
+
 		if (takeContentChanged() || data == null) {
 			forceLoad();
 		}
@@ -58,6 +60,8 @@ public class GamesLoader extends Loader<List<Game>> implements
 	protected void onReset() {
 		onStopLoading();
 
+		Log.d(TAG, "Load reset");
+
 		data = null;
 
 		BluTagService.unregisterGamesListener(getContext(), this);
@@ -73,13 +77,13 @@ public class GamesLoader extends Loader<List<Game>> implements
 	public void onResponse(List<Game> response) {
 		if (data == null) {
 			data = response;
+			onContentChanged();
 		} else {
 			if (!data.containsAll(response)) {
 				data.addAll(response);
 				data = new ArrayList<Game>(data);
+				onContentChanged();
 			}
 		}
-
-		onContentChanged();
 	}
 }

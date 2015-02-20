@@ -205,6 +205,22 @@ public class BluTagClient {
 		requestQueue.add(startGameRequest);
 	}
 	
+	public void deleteGame(Listener<Void> listener, ErrorListener errorListener, Object tag, String gameId, String authToken) {
+		Uri url = apiUrl.buildUpon().appendPath(GAMES_URL)
+				.appendEncodedPath(gameId).build();
+	
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Authorization", authToken);
+
+		GsonRequest<Void> deleteGameRequest = new GsonRequest<Void>(gson,
+				Method.DELETE, url.toString(), Void.class, headers, listener,
+				errorListener);
+
+		deleteGameRequest.setTag(tag);
+
+		requestQueue.add(deleteGameRequest);
+	}
+	
 	public void cancelAll(Object tag) {
 		requestQueue.cancelAll(tag);
 	}

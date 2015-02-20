@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 public class BluetoothReceiver extends BroadcastReceiver {
@@ -45,6 +46,11 @@ public class BluetoothReceiver extends BroadcastReceiver {
 				.getAction())) {
 			if (listener != null)
 				listener.onDiscoveryFinished();
+		} else if(ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction()) && intent.getBooleanExtra((ConnectivityManager.EXTRA_NO_CONNECTIVITY), false)) {
+			int state = BluetoothAdapter.STATE_OFF;
+
+			if (listener != null)
+				listener.onStateChanged(state);
 		}
 	}
 
@@ -53,6 +59,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
 			filter.addAction(BluetoothDevice.ACTION_FOUND);
 			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 			filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+			filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 
 			context.registerReceiver(this, filter);
 	}

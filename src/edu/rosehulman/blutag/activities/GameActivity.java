@@ -13,7 +13,10 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -27,9 +30,12 @@ import edu.rosehulman.blutag.service.BluTagService.GameListener;
 import edu.rosehulman.blutag.service.data.Game;
 import edu.rosehulman.blutag.service.data.Player;
 import edu.rosehulman.blutag.service.data.Tag;
+import edu.rosehulman.blutag.service.rest.BluTagClient;
+import edu.rosehulman.blutag.views.CircularImageView;
 
 public class GameActivity extends ServiceActivity implements OnClickListener,
-		Listener<Player>, ErrorListener, GameListener {
+		Listener<Player>, ErrorListener, GameListener,
+		android.view.View.OnClickListener {
 	private static final String TAG = "edu.rosehulman.blutag.activities.GameActivity";
 
 	public static final String EXTRA_GAME = "game";
@@ -44,6 +50,9 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 	private AlertDialog leaveDialog;
 	private MenuItem joinGame;
 	private MenuItem startGame;
+	private View statusItem;
+	private CircularImageView itImageView;
+	private TextView itTextView;
 
 	private Game game;
 
@@ -59,6 +68,13 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 
 		ListView playersListView = (ListView) findViewById(android.R.id.list);
 		playersListView.setAdapter(players);
+
+		statusItem = findViewById(R.id.status_item);
+		itImageView = (CircularImageView) statusItem
+				.findViewById(R.id.item_player_image);
+		itTextView = (TextView) statusItem.findViewById(R.id.item_player_name);
+
+		statusItem.setOnClickListener(this);
 
 		leaveDialog = new AlertDialog.Builder(this)
 				.setMessage(R.string.dialog_game_leave_message)
@@ -153,8 +169,7 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						// TODO Auto-generated method stub
-
+						Toast.makeText(GameActivity.this, R.string.toast_no_network, Toast.LENGTH_SHORT).show();
 					}
 				}, null);
 			}
@@ -164,18 +179,34 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		if (dialog == leaveDialog) {
-			service.leaveGame(new Listener<Void>() {
-				@Override
-				public void onResponse(Void response) {
-					GameActivity.super.finish();
-				}
-			}, new ErrorListener() {
-				@Override
-				public void onErrorResponse(VolleyError error) {
-					// TODO Auto-generated method stub
+			if (getIntent().hasExtra(EXTRA_CREATED)) {
+				service.deleteGame(new Listener<Void>() {
+					@Override
+					public void onResponse(Void response) {
+						// TODO Auto-generated method stub
+					}
+				}, new ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Toast.makeText(GameActivity.this, R.string.toast_no_network, Toast.LENGTH_SHORT).show();
+					}
+				}, null);
 
-				}
-			}, null);
+			} else {
+				service.leaveGame(new Listener<Void>() {
+					@Override
+					public void onResponse(Void response) {
+						// TODO Auto-generated method stub
+					}
+				}, new ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Toast.makeText(GameActivity.this, R.string.toast_no_network, Toast.LENGTH_SHORT).show();
+					}
+				}, null);
+			}
+
+			GameActivity.super.finish();
 		}
 	}
 
@@ -201,6 +232,10 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 		joined = true;
 		joinGame.setVisible(false);
 
+		statusItem.setVisibility(View.VISIBLE);
+
+		updateIt();
+
 		this.service.registerGameListener(this);
 	}
 
@@ -213,6 +248,10 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 		if (currentGame != null) {
 			if (currentGame.equals(game)) {
 				joined = true;
+
+				statusItem.setVisibility(View.VISIBLE);
+
+				updateIt();
 
 				this.service.registerGameListener(this);
 			} else {
@@ -252,7 +291,41 @@ public class GameActivity extends ServiceActivity implements OnClickListener,
 
 	@Override
 	public void onTag(Tag tag) {
-		// TODO Auto-generated method stub
+		game.tags.add(tag);
 
+		updateIt();
+	}
+
+	private void updateIt() {
+		Player it = game.getIt();
+
+		if (it == null) {
+			itTextView.setText(R.string.notification_wait);
+			itImageView.setImageBitmap(null);
+		} else {
+			itTextView.setText(getString(R.string.notification_tag,
+					it.givenName));
+			itImageView.setImageUrl(it.image, BluTagClient.getInstance(this)
+					.getImageLoader());
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+//		Intent statusActivity = new Intent(this, StatusActivity.class);
+//		startActivity(statusActivity);
+	}
+
+	@Override
+	public void onGameDeleted() {
+		Toast.makeText(this, R.string.toast_game_ended, Toast.LENGTH_SHORT)
+				.show();
+
+		super.finish();
+	}
+
+	@Override
+	public void onBluetoothDisabled() {
+		super.finish();
 	}
 }

@@ -6,11 +6,15 @@ import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -21,11 +25,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -52,6 +58,8 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 
 	private static final int BLUETOOTH_DISCOVERABLE_REQUEST = 9002;
 
+	private static final int BLUETOOTH_ENABLE_REQUEST = 9003;
+
 	private HolderAdapter<Game> games;
 	private AlertDialog createDialog;
 	private TextView createGameName;
@@ -60,11 +68,14 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		setContentView(R.layout.activity_main);
 
 		games = new HolderAdapter<Game>(this, R.layout.item_game,
 				new GameHolder.Factory());
-
+		
 		ListView gamesListView = (ListView) findViewById(android.R.id.list);
 		gamesListView.setAdapter(games);
 		gamesListView.setOnItemClickListener(this);
@@ -80,13 +91,29 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 
 		createDialog.getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+		getLoaderManager().initLoader(0, null, this);
+
+		startActivityForResult(AccountPicker.newChooseAccountIntent(null, null,
+				new String[] { "com.google" }, false, null, null, null, null),
+				GOOGLE_PLUS_AUTHENTICATION_REQUEST);
 	}
 
 	@Override
-	protected void onStart() {
-		super.onStart();
+	protected void onResume() {
+		super.onResume();
 
-		getLoaderManager().initLoader(0, null, this);
+		games.clear();
+		setProgressBarIndeterminateVisibility(true);
+
+		IntentFilter intentFilter = new IntentFilter(
+				BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+		registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				setProgressBarIndeterminateVisibility(false);
+			}
+		}, intentFilter);
 
 		int resultCode = GooglePlayServicesUtil
 				.isGooglePlayServicesAvailable(this);
@@ -108,10 +135,13 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 
 			startService(intent);
 		}
-
-		startActivityForResult(AccountPicker.newChooseAccountIntent(null, null,
-				new String[] { "com.google" }, false, null, null, null, null),
-				GOOGLE_PLUS_AUTHENTICATION_REQUEST);
+		
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		
+		if(!adapter.isEnabled()) {
+			Intent bluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(bluetoothIntent, BLUETOOTH_ENABLE_REQUEST);
+		}
 	}
 
 	@Override
@@ -129,7 +159,11 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 
 			return true;
 		} else if (id == R.id.menu_refresh) {
-			getLoaderManager().restartLoader(0, null, this);
+			games.clear();
+			getLoaderManager().destroyLoader(0);
+			getLoaderManager().initLoader(0, null, this);
+
+			setProgressBarIndeterminateVisibility(true);
 
 			return true;
 		}
@@ -156,7 +190,7 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 				}, new ErrorListener() {
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						throw new RuntimeException(error);
+						Toast.makeText(MainActivity.this, R.string.toast_no_network, Toast.LENGTH_SHORT).show();
 					}
 				}, TAG, createGameName.getText().toString());
 			}
@@ -222,7 +256,7 @@ public class MainActivity extends ServiceActivity implements OnClickListener,
 				}, new ErrorListener() {
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						throw new RuntimeException(error);
+						Toast.makeText(MainActivity.this, R.string.toast_no_network, Toast.LENGTH_SHORT).show();
 					}
 				}, TAG, createGameName.getText().toString());
 			} else {

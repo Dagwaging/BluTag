@@ -11,7 +11,8 @@
     <string name="menu_game_start">Start game</string>
     <string name="dialog_game_leave_button">Leave</string>
     <string name="dialog_game_leave_message">Are you sure you want to leave the game?</string>
-    <string name="toast_game_ended">That game has ended</string>
+    <string name="toast_game_ended">The game has ended</string>
+    <string name="toast_no_network">Unable to connect to server</string>
     <string name="notification_tag">%s is it!</string>
     <string name="notification_wait">Waiting for game to start&#8230;</string>
     <string name="menu_refresh">Refresh</string>

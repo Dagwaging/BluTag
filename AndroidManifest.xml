@@ -42,10 +42,12 @@
         </activity>
         <activity
             android:name=".activities.GameActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="edu.rosehulman.blutag.activities.StatusActivity"
+            android:name=".activities.StatusActivity"
+            android:parentActivityName=".activities.GameActivity"
             android:screenOrientation="portrait" >
         </activity>
 

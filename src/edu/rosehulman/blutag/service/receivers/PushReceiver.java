@@ -27,6 +27,8 @@ public class PushReceiver extends BroadcastReceiver {
 
 	public static final String ACTION_LEAVE = "leave";
 
+	public static final String ACTION_DELETE = "delete";
+
 	public static final String EXTRA_DATA = "data";
 
 	/*
@@ -73,6 +75,10 @@ public class PushReceiver extends BroadcastReceiver {
 					
 					pushIntent = new Intent(ACTION_JOIN);
 					pushIntent.putExtra(EXTRA_DATA, player);
+				}
+				
+				if(extras.containsKey("deleted")) {
+					pushIntent = new Intent(ACTION_DELETE);
 				}
 
 				if (pushIntent != null) {

@@ -117,11 +117,16 @@ public class BluTagService extends Service implements BluetoothListener,
 
 					for (Player _player : currentGame.players) {
 						if (_player.equals(player)) {
-							return;
+							if(! _player.left) {
+								return;
+							}
+							
+							_player.left = false;
 						}
 					}
 
 					currentGame.players.add(player);
+					currentGame.playerCount++;
 
 					if (BluTagService.this.gameListener != null)
 						BluTagService.this.gameListener.onPlayerJoin(player);
@@ -139,6 +144,8 @@ public class BluTagService extends Service implements BluetoothListener,
 							break;
 						}
 					}
+
+					currentGame.playerCount--;
 				} else if (PushReceiver.ACTION_TAG.equals(intent.getAction())) {
 					Tag tag = intent.getExtras().getParcelable(
 							PushReceiver.EXTRA_DATA);
@@ -171,6 +178,19 @@ public class BluTagService extends Service implements BluetoothListener,
 
 					if (BluTagService.this.gameListener != null)
 						BluTagService.this.gameListener.onTag(tag);
+				} else if (PushReceiver.ACTION_DELETE
+						.equals(intent.getAction())) {
+					LocalBroadcastManager.getInstance(BluTagService.this)
+							.unregisterReceiver(pushReceiver);
+
+					currentGame = null;
+
+					stopSelf();
+
+					stopForeground(true);
+
+					if (BluTagService.this.gameListener != null)
+						BluTagService.this.gameListener.onGameDeleted();
 				}
 			}
 		};
@@ -179,6 +199,7 @@ public class BluTagService extends Service implements BluetoothListener,
 		intentFilter.addAction(PushReceiver.ACTION_JOIN);
 		intentFilter.addAction(PushReceiver.ACTION_LEAVE);
 		intentFilter.addAction(PushReceiver.ACTION_TAG);
+		intentFilter.addAction(PushReceiver.ACTION_DELETE);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(pushReceiver,
 				intentFilter);
@@ -197,8 +218,6 @@ public class BluTagService extends Service implements BluetoothListener,
 
 		BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
 
-		LocalBroadcastManager.getInstance(this)
-				.unregisterReceiver(pushReceiver);
 	}
 
 	@Override
@@ -247,6 +266,7 @@ public class BluTagService extends Service implements BluetoothListener,
 
 		bluetoothReceiver.register(context);
 
+		BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
 		BluetoothAdapter.getDefaultAdapter().startDiscovery();
 	}
 
@@ -335,10 +355,26 @@ public class BluTagService extends Service implements BluetoothListener,
 				currentGame._id);
 	}
 
+	public void deleteGame(final Listener<Void> listener,
+			final ErrorListener errorListener, final Object tag) {
+		final Game game = currentGame;
+
+		BluTagClient.getInstance(this).leaveGame(new Listener<Void>() {
+			@Override
+			public void onResponse(Void response) {
+				BluTagClient.getInstance(BluTagService.this).deleteGame(
+						listener, errorListener, tag, game._id, authToken);
+			}
+		}, errorListener, tag, game._id, authToken);
+	}
+
 	public void leaveGame(Listener<Void> listener, ErrorListener errorListener,
 			Object tag) {
 		BluTagClient.getInstance(this).leaveGame(listener, errorListener, tag,
 				currentGame._id, authToken);
+
+		LocalBroadcastManager.getInstance(this)
+				.unregisterReceiver(pushReceiver);
 
 		currentGame = null;
 
@@ -413,8 +449,13 @@ public class BluTagService extends Service implements BluetoothListener,
 
 	@Override
 	public void onDeviceFound(String name, String address, Boolean near) {
-		Log.d(TAG, "Saw " + address + (near ? " nearby, " : ", ") + (currentGame != null && currentGame.getIt() != null ? currentGame.getIt().address : "nobody") + " is it");
-		
+		Log.d(TAG,
+				"Saw "
+						+ address
+						+ (near ? " nearby, " : ", ")
+						+ (currentGame != null && currentGame.getIt() != null ? currentGame
+								.getIt().address : "nobody") + " is it");
+
 		if (near && currentGame != null && currentGame.getIt() != null
 				&& address.equals(currentGame.getIt().address)) {
 			BluTagClient.getInstance(this).tag(this, this, null,
@@ -424,8 +465,21 @@ public class BluTagService extends Service implements BluetoothListener,
 
 	@Override
 	public void onStateChanged(int state) {
-		// TODO Auto-generated method stub
-
+		if (state == BluetoothAdapter.STATE_TURNING_OFF
+				|| state == BluetoothAdapter.STATE_OFF) {
+			if(currentGame != null) {
+				leaveGame(new Listener<Void>() {
+					@Override
+					public void onResponse(Void response) {
+						// TODO Auto-generated method stub
+						
+					}
+				}, null, null);
+				
+				if(gameListener != null)
+					gameListener.onBluetoothDisabled();
+			}
+		}
 	}
 
 	@Override
@@ -447,6 +501,10 @@ public class BluTagService extends Service implements BluetoothListener,
 
 	public interface GameListener {
 		public void onPlayerJoin(Player player);
+
+		public void onBluetoothDisabled();
+
+		public void onGameDeleted();
 
 		public void onPlayerLeave(Player player);
 
